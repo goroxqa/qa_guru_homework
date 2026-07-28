@@ -1,6 +1,8 @@
 import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.service import Service
 
 
 class Tests:
@@ -16,15 +18,17 @@ class Tests:
     def set_driver(self, driver):
         self.__driver = driver
 
-    full_name_locator = "userName"
-    email_locator = "userEmail"
-    submit_button_locator = "submit"
-    result_box_locator = "output"
-    cur_address_locator = "currentAddress"
+    full_name_locator = (By.ID, "userName")
+    email_locator = (By.ID, "userEmail")
+    submit_button_locator = (By.ID, "submit")
+    result_box_locator = (By.ID, "output")
+    cur_address_locator = (By.ID, "currentAddress")
+    email_input_locator = (By.CSS_SELECTOR, "input[type='email']")
 
     # Запуск браузера
     def set_up(self):
-        self.__driver = webdriver.Chrome()
+        service = Service(ChromeDriverManager().install())
+        self.__driver = webdriver.Chrome(service=service)
         self.get_driver().get(self.get_url())
         self.get_driver().maximize_window()
         time.sleep(3)
@@ -37,18 +41,18 @@ class Tests:
         try:
             self.set_up()
 
-            full_name_field = self.get_driver().find_element(By.ID, self.full_name_locator)
+            full_name_field = self.get_driver().find_element(*self.full_name_locator)
             full_name_field.send_keys("Иван Иванов")
 
-            email_field = self.get_driver().find_element(By.ID, self.email_locator)
+            email_field = self.get_driver().find_element(*self.email_locator)
             email_field.send_keys("ivan@example.com")
 
-            submit_button = self.get_driver().find_element(By.ID, self.submit_button_locator)
+            submit_button = self.get_driver().find_element(*self.submit_button_locator)
             submit_button.click()
 
             time.sleep(3)
 
-            result_box = self.get_driver().find_element(By.ID, self.result_box_locator)
+            result_box = self.get_driver().find_element(*self.result_box_locator)
 
             assert "Иван Иванов" in result_box.text
             print("Тест 1 успешно пройден!")
@@ -60,21 +64,21 @@ class Tests:
         try:
             self.set_up()
 
-            full_name_field = self.get_driver().find_element(By.ID, self.full_name_locator)
+            full_name_field = self.get_driver().find_element(*self.full_name_locator)
             full_name_field.send_keys("Иван Иванов")
 
-            email_field = self.get_driver().find_element(By.ID, self.email_locator)
+            email_field = self.get_driver().find_element(*self.email_locator)
             email_field.send_keys("ivan@example.com")
 
-            cur_address_field = self.get_driver().find_element(By.ID, self.cur_address_locator)
+            cur_address_field = self.get_driver().find_element(*self.cur_address_locator)
             cur_address_field.send_keys("СПб, ул. Ленина, д.1, кв.1")
 
-            submit_button = self.get_driver().find_element(By.ID, self.submit_button_locator)
+            submit_button = self.get_driver().find_element(*self.submit_button_locator)
             submit_button.click()
 
             time.sleep(3)
 
-            result_box = self.get_driver().find_element(By.ID, self.result_box_locator)
+            result_box = self.get_driver().find_element(*self.result_box_locator)
 
             assert "Иван Иванов" in result_box.text
             print("Тест 2 успешно пройден!")
@@ -86,20 +90,26 @@ class Tests:
         try:
             self.set_up()
 
-            full_name_field = self.get_driver().find_element(By.ID, self.full_name_locator)
+            full_name_field = self.get_driver().find_element(*self.full_name_locator)
             full_name_field.send_keys("Иван Иванов")
 
-            email_field = self.get_driver().find_element(By.ID, self.email_locator)
-            email_field.send_keys("ivanexample.com")  # Некорректный email
+            email_field = self.get_driver().find_element(*self.email_locator)
+            email_field.send_keys("ivanexample.com")  # Некорректный email (без @)
 
-            submit_button = self.get_driver().find_element(By.ID, self.submit_button_locator)
+            submit_button = self.get_driver().find_element(*self.submit_button_locator)
             submit_button.click()
 
             time.sleep(3)
 
-            result_box = self.get_driver().find_element(By.ID, self.result_box_locator)
+            # Находим поле email для получения сообщения валидации
+            email_input = self.get_driver().find_element(*self.email_input_locator)
 
-            assert "Иван Иванов" in result_box.text
+            # Получаем сообщение валидации
+            validation_message = self.get_driver().execute_script("return arguments[0].validationMessage", email_input)
+
+            # Проверяем текст сообщения
+            expected_message = 'Адрес электронной почты должен содержать символ "@". В адресе "ivanexample.com" отсутствует символ "@".'
+            assert expected_message in validation_message
             print("Тест 3 успешно пройден!")
 
         finally:
