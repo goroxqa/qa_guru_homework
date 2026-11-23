@@ -1,6 +1,5 @@
 from selenium import webdriver
 from login_form import LoginForm
-from time import sleep
 
 # Невалидные логин и пароль
 def test_invalid_login_and_password():
@@ -38,6 +37,5 @@ def test_logout_button():
         login_page.login('user1', 'password1')
         login_page.logout()
         assert login_page.is_login_form_visible()
-        sleep(2)
     finally:
         driver.quit()
