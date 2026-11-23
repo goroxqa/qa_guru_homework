@@ -2,7 +2,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 
-
+# 1
 class LoginForm:
     LOGIN_LOCATOR = (By.ID, 'login-input')
     PASSWORD_LOCATOR = (By.ID, 'password-input')

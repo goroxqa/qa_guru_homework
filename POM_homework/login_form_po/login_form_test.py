@@ -15,7 +15,7 @@ def test_invalid_login_and_password():
 
     finally:
         driver.quit()
-# Валидный логин и пароль
+# Валидный логин и пароль 1
 def test_valid_login():
     driver = webdriver.Chrome()
     try:
